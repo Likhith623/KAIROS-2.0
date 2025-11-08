@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 15, 23, 42;
+  --background-rgb: 248, 250, 252;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 248, 250, 252;
+    --background-rgb: 15, 23, 42;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+}
+
+/* KaTeX styles */
+@import 'katex/dist/katex.min.css';
+
+/* Custom AR overlay styles */
+.ar-overlay {
+  position: absolute;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.concept-card {
+  @apply bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-4 border border-kairos-primary/20;
+}
+
+.scan-line {
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #2563eb, transparent);
+  animation: scan 2s ease-in-out infinite;
+}
+
+/* Camera feed styles */
+.camera-feed {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.camera-feed video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* AR marker styles */
+.ar-marker {
+  position: absolute;
+  border: 2px solid #2563eb;
+  box-shadow: 0 0 20px rgba(37, 99, 235, 0.5);
+  animation: pulse-slow 2s infinite;
+}
+
+/* Module card styles */
+.module-card {
+  @apply bg-gradient-to-br from-kairos-primary to-kairos-secondary text-white rounded-xl p-6 shadow-xl;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.module-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Loading animation */
+.loading-spinner {
+  border: 3px solid rgba(37, 99, 235, 0.1);
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Tooltip styles */
+.tooltip {
+  @apply absolute z-50 px-3 py-2 text-sm bg-gray-900 text-white rounded-md shadow-lg;
+  pointer-events: none;
+}
+
+/* WebXR button */
+.xr-button {
+  @apply bg-kairos-primary hover:bg-kairos-secondary text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all duration-300;
+}
+
+.xr-button:hover {
+  transform: scale(1.05);
+}
+
+/* Concept tag */
+.concept-tag {
+  @apply inline-block bg-kairos-accent text-white text-xs font-semibold px-3 py-1 rounded-full mr-2 mb-2;
+}
