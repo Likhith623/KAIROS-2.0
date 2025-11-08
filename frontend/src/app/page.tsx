@@ -32,6 +32,11 @@ export default function Home() {
       title: 'Study Modules',
       description: 'Get detailed explanations, formulas, examples, and practice questions for each concept',
     },
+    {
+      icon: '🤖',
+      title: 'AI RAG Assistant',
+      description: 'Chat with an intelligent AI assistant powered by RAG technology for personalized learning support',
+    },
   ];
 
   const examples = [
@@ -95,6 +100,15 @@ export default function Home() {
                   📚 Browse Modules
                 </motion.button>
               </Link>
+              <a href="http://localhost:3000" target="_blank" rel="noopener noreferrer">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all duration-300 text-lg"
+                >
+                  🤖 AI RAG Assistant
+                </motion.button>
+              </a>
             </div>
           </motion.div>
 
@@ -116,7 +130,7 @@ export default function Home() {
             How It Works
           </motion.h2>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-8">
             {features.map((feature, index) => (
               <motion.div
                 key={index}
