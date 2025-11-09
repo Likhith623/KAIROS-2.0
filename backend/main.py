@@ -908,6 +908,91 @@ Include 8-12 overlays total with anatomical labels, process arrows, and particle
         raise HTTPException(status_code=500, detail=f"Failed to generate AR overlays: {str(e)}")
 
 
+@app.post("/api/chat-query")
+async def handle_chat_query(request: dict):
+    """
+    Handle chatbot queries - both object-specific and general educational questions using Gemini
+    """
+    try:
+        query = request.get("query", "")
+        context = request.get("context", "")  # Object name if available
+        conversation_history = request.get("conversation_history", [])
+        
+        # Build conversation context
+        history_text = ""
+        for msg in conversation_history[-3:]:  # Last 3 messages
+            role = msg.get("role", "user")
+            content = msg.get("content", "")
+            # Skip long messages in history
+            if len(content) < 200:
+                history_text += f"{role.capitalize()}: {content}\n"
+        
+        # Create intelligent prompt based on whether we have object context
+        if context:
+            # Object-specific mode
+            prompt = f"""You are KAIROS AI - an expert educational assistant helping students learn about objects and scientific concepts.
+
+Context: The user is looking at a **{context}** and has a question.
+
+Previous conversation:
+{history_text}
+
+Student's question: {query}
+
+Provide a helpful, educational response that:
+1. Answers their question clearly and accurately
+2. Relates to the detected object ({context}) when relevant
+3. Includes scientific concepts, formulas, or principles when appropriate
+4. Is engaging and encouraging for learning
+5. Uses examples and analogies when helpful
+6. Keep responses under 250 words for clarity
+
+If the question is about {context}, provide detailed information. If it's about something else, answer it while maintaining educational value.
+
+Response:"""
+        else:
+            # General educational mode
+            prompt = f"""You are KAIROS AI - an expert educational assistant specializing in science, mathematics, physics, chemistry, and biology.
+
+Previous conversation:
+{history_text}
+
+Student's question: {query}
+
+Provide a comprehensive educational response that:
+1. Answers their question clearly and accurately
+2. Includes relevant formulas, equations, or scientific principles
+3. Uses real-world examples and applications
+4. Breaks down complex concepts into understandable parts
+5. Encourages further learning and curiosity
+6. Keep responses under 250 words for clarity
+
+Topics you excel at:
+- Mathematics (algebra, calculus, geometry, trigonometry)
+- Physics (mechanics, thermodynamics, electromagnetism, quantum)
+- Chemistry (organic, inorganic, physical chemistry, reactions)
+- Biology (cell biology, genetics, ecology, physiology)
+- General science concepts and principles
+
+Response:"""
+
+        response = gemini_model.generate_content(prompt)
+        ai_response = response.text.strip()
+        
+        return {
+            "response": ai_response,
+            "context": context if context else "general",
+            "query": query
+        }
+        
+    except Exception as e:
+        print(f"❌ Chat query error: {e}")
+        return {
+            "response": "I apologize, but I'm having trouble processing your question right now. Please try rephrasing or ask something else! I'm here to help with any educational topic.",
+            "error": str(e)
+        }
+
+
 @app.get("/api/health")
 async def health_check():
     return {"status": "healthy", "service": "KAIROS 2.0 Backend"}

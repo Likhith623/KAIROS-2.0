@@ -7,6 +7,7 @@ import ObjectDetector from '@/components/ObjectDetector';
 import ProfessionalAROverlay from '@/components/ProfessionalAROverlay';
 import ConceptPanel from '@/components/ConceptPanel';
 import AnnotatedResultViewer from '@/components/AnnotatedResultViewer';
+import ObjectChatbot from '@/components/ObjectChatbot';
 import { conceptAPI } from '@/lib/api/client';
 import { useARStore } from '@/lib/stores/arStore';
 import Link from 'next/link';
@@ -155,6 +156,27 @@ export default function ScanPage() {
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-black">
+      {/* Left Sidebar - AI Chatbot 
+          Shows: 
+          1. Initially (before scanning) - welcome message
+          2. Hidden during active scanning
+          3. After analysis - with detected object info
+      */}
+      <AnimatePresence>
+        {!isScanning && !analysisResult && (
+          <ObjectChatbot 
+            detectedObject={null} 
+            objectInfo={null}
+          />
+        )}
+        {analysisResult && !isScanning && (
+          <ObjectChatbot 
+            detectedObject={analysisResult.object_detected} 
+            objectInfo={concepts?.web_info || analysisResult.educational_info}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Show Analysis Result if available */}
       <AnimatePresence>
         {analysisResult && capturedImageUrl && (

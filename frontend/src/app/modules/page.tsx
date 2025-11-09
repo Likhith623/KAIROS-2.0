@@ -1,21 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { conceptAPI } from '@/lib/api/client';
 import { useSearchParams } from 'next/navigation';
-
-// Module data structure
-interface Module {
-  id: string;
-  title: string;
-  category: string;
-  difficulty: string;
-  concepts?: string[];
-  icon?: string;
-  notes?: string | null;
-  byjus_link?: string | null;
-}
+import { STATIC_MODULES, ModuleTopic } from '@/lib/staticModules';
 
 export default function ModulesPage() {
   const searchParams = useSearchParams();
@@ -23,68 +11,42 @@ export default function ModulesPage() {
   
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState(topicFromUrl || '');
-  const [allModules, setAllModules] = useState<Module[]>([]);
-  const [filteredModules, setFilteredModules] = useState<Module[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [expandedModule, setExpandedModule] = useState<string | null>(null);
+  const [userNotes, setUserNotes] = useState<Record<string, string>>({});
 
-  const categories = ['all', 'math', 'physics', 'chemistry', 'biology', 'geometry'];
+  const categories = ['all', 'math', 'physics', 'chemistry', 'biology'];
 
-  // Load topics from backend
-  useEffect(() => {
-    const fetchModules = async () => {
-      setLoading(true);
-      try {
-        // First try to generate fresh content from Gemini
-        const geminiResponse = await fetch('http://localhost:8000/api/topics/generate?count=100');
-        if (geminiResponse.ok) {
-          const geminiData = await geminiResponse.json();
-          if (geminiData.topics && geminiData.topics.length > 0) {
-            const formatted: Module[] = geminiData.topics.map((topic: any, index: number) => ({
-              id: `gemini-${index}`,
-              title: topic.name,
-              category: topic.category || 'general',
-              difficulty: topic.difficulty || 'intermediate',
-              notes: topic.notes || '',
-              formulas: topic.formulas || [],
-              key_points: topic.key_points || [],
-              applications: topic.applications || [],
-              byjus_link: topic.byjus_link || `https://byjus.com/search/?q=${encodeURIComponent(topic.name)}`
-            }));
-            setAllModules(formatted);
-            setLoading(false);
-            return;
-          }
-        }
-        
-        // Fallback to static topics if Gemini fails
-        const response = await fetch('http://localhost:8000/api/topics');
-        const data = await response.json();
-        
-        const formatted: Module[] = Object.entries(data).flatMap(([subject, topics]: [string, any]) =>
-          topics.map((topic: any, index: number) => ({
-            id: `${subject}-${index}`,
-            title: topic.name,
-            category: subject,
-            difficulty: topic.difficulty || 'intermediate',
-            notes: topic.notes || '',
-            formulas: topic.formulas || [],
-            byjus_link: topic.byjus_link
-          }))
-        );
-        
-        setAllModules(formatted);
-      } catch (error) {
-        console.error('Failed to fetch modules:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchModules();
+  // Load all static modules (NO API CALLS!)
+  const allModules: ModuleTopic[] = useMemo(() => {
+    return [
+      ...STATIC_MODULES.math,
+      ...STATIC_MODULES.physics,
+      ...STATIC_MODULES.chemistry,
+      ...STATIC_MODULES.biology,
+    ];
   }, []);
 
+  // Load user notes from localStorage on mount
   useEffect(() => {
-    // apply filters locally when modules change
+    const savedNotes = localStorage.getItem('kairos-user-notes');
+    if (savedNotes) {
+      try {
+        setUserNotes(JSON.parse(savedNotes));
+      } catch (e) {
+        console.error('Failed to load user notes:', e);
+      }
+    }
+  }, []);
+
+  // Save user notes to localStorage whenever they change
+  const saveNote = (moduleId: string, note: string) => {
+    const updated = { ...userNotes, [moduleId]: note };
+    setUserNotes(updated);
+    localStorage.setItem('kairos-user-notes', JSON.stringify(updated));
+  };
+
+  // Filter modules based on category and search
+  const filteredModules = useMemo(() => {
     let filtered = allModules;
 
     // Filter by category
@@ -96,11 +58,12 @@ export default function ModulesPage() {
     if (searchQuery) {
       filtered = filtered.filter((m) =>
         m.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (m.notes || '').toLowerCase().includes(searchQuery.toLowerCase())
+        m.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        m.theory.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
-    setFilteredModules(filtered);
+    return filtered;
   }, [selectedCategory, searchQuery, allModules]);
 
   return (
@@ -171,7 +134,8 @@ export default function ModulesPage() {
           {filteredModules.map((module) => (
             <div
               key={module.id}
-              className="module-card group cursor-pointer"
+              className="module-card group cursor-pointer relative"
+              onClick={() => setExpandedModule(expandedModule === module.id ? null : module.id)}
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="text-5xl">{module.icon}</div>
@@ -190,30 +154,72 @@ export default function ModulesPage() {
                 </span>
               </div>
 
-              <div className="mb-4">
-                {module.notes ? (
-                  <p className="text-sm text-white/80">{module.notes}</p>
-                ) : (
-                  <p className="text-sm text-white/80">No notes available yet.</p>
-                )}
-              </div>
+              <p className="text-sm text-white/80 mb-4 line-clamp-3">
+                {module.description}
+              </p>
 
-              <div className="flex gap-2">
-                {module.byjus_link ? (
-                  <a
-                    href={module.byjus_link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-2 w-full text-center bg-white/10 hover:bg-white/20 text-white font-bold py-2 px-4 rounded-lg transition-all"
-                  >
-                    Open on BYJU'S
-                  </a>
-                ) : (
-                  <Link href={`/modules/${module.id}`} className="mt-2 w-full text-center bg-white/10 hover:bg-white/20 text-white font-bold py-2 px-4 rounded-lg transition-all">
-                    Learn More →
-                  </Link>
-                )}
-              </div>
+              {/* Expanded Content */}
+              {expandedModule === module.id && (
+                <div className="mt-4 pt-4 border-t border-white/20 max-h-96 overflow-y-auto">
+                  {/* Key Points */}
+                  {module.keyPoints && module.keyPoints.length > 0 && (
+                    <div className="mb-4">
+                      <h4 className="text-lg font-bold text-kairos-accent mb-2">🎯 Key Points:</h4>
+                      <ul className="list-disc list-inside text-sm text-white/80 space-y-1">
+                        {module.keyPoints.slice(0, 5).map((point, idx) => (
+                          <li key={idx}>{point}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Formulas */}
+                  {module.formulas && module.formulas.length > 0 && (
+                    <div className="mb-4">
+                      <h4 className="text-lg font-bold text-kairos-accent mb-2">📐 Key Formulas:</h4>
+                      <div className="space-y-2">
+                        {module.formulas.slice(0, 3).map((formula, idx) => (
+                          <div key={idx} className="bg-white/5 px-3 py-2 rounded text-sm font-mono text-white/90">
+                            {formula}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Applications */}
+                  {module.applications && module.applications.length > 0 && (
+                    <div className="mb-4">
+                      <h4 className="text-lg font-bold text-kairos-accent mb-2">🚀 Applications:</h4>
+                      <ul className="list-disc list-inside text-sm text-white/80 space-y-1">
+                        {module.applications.slice(0, 3).map((app, idx) => (
+                          <li key={idx}>{app}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* User Notes */}
+                  <div className="mt-4">
+                    <h4 className="text-lg font-bold text-kairos-accent mb-2">📝 Your Notes:</h4>
+                    <textarea
+                      value={userNotes[module.id] || ''}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        saveNote(module.id, e.target.value);
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                      placeholder="Add your personal notes here..."
+                      className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-kairos-accent resize-none"
+                      rows={3}
+                    />
+                  </div>
+                </div>
+              )}
+
+              <button className="mt-4 w-full text-center bg-kairos-primary/80 hover:bg-kairos-primary text-white font-bold py-2 px-4 rounded-lg transition-all">
+                {expandedModule === module.id ? '▲ Show Less' : '▼ Explore Topic'}
+              </button>
             </div>
           ))}
         </div>
