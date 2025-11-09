@@ -19,7 +19,6 @@ export default function ObjectChatbot({ detectedObject, objectInfo }: ObjectChat
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -206,10 +205,6 @@ export default function ObjectChatbot({ detectedObject, objectInfo }: ObjectChat
     }
   };
 
-  const toggleExpand = () => {
-    setIsExpanded(!isExpanded);
-  };
-
   const clearChat = () => {
     setMessages([]);
     if (detectedObject) {
@@ -233,252 +228,129 @@ export default function ObjectChatbot({ detectedObject, objectInfo }: ObjectChat
 
   return (
     <motion.div
-      initial={{ x: -400, opacity: 0 }}
+      initial={{ x: -300, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
-      exit={{ x: -400, opacity: 0 }}
-      transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-      className={`fixed left-4 top-20 bottom-24 z-30 ${isExpanded ? 'w-80' : 'w-14'} transition-all duration-300`}
+      exit={{ x: -300, opacity: 0 }}
+      transition={{ type: 'spring', damping: 20, stiffness: 100 }}
+      className="fixed left-6 top-1/2 -translate-y-1/2 z-[110] w-80"
     >
-      <div className="h-full bg-gradient-to-b from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-xl border-2 border-purple-500/30 shadow-2xl rounded-2xl flex flex-col overflow-hidden">
-        {/* Header with gradient accent */}
+      <div className="h-[80vh] max-h-[700px] bg-white/10 backdrop-blur-2xl border border-white/20 shadow-2xl rounded-3xl flex flex-col overflow-hidden">
+        {/* Minimal Header */}
         <div className="relative">
-          {/* Animated gradient bar */}
-          <motion.div
-            className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-t-2xl"
-            animate={{
-              backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
-            }}
-            transition={{
-              duration: 3,
-              repeat: Infinity,
-              ease: 'linear',
-            }}
-            style={{
-              backgroundSize: '200% 100%',
-            }}
-          />
+          <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400"></div>
           
-          <div className="flex items-center justify-between p-3 border-b border-white/10 bg-gradient-to-r from-purple-900/30 to-blue-900/30">
-            {isExpanded && (
-              <>
-                <div className="flex items-center gap-2">
-                  <motion.span 
-                    className="text-2xl"
-                    animate={{
-                      rotate: [0, 10, -10, 0],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: 'easeInOut',
-                    }}
-                  >
-                    🤖
-                  </motion.span>
-                  <div>
-                    <h3 className="text-white font-bold text-sm bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                      KAIROS Assistant
-                    </h3>
-                    {detectedObject ? (
-                      <motion.p 
-                        initial={{ opacity: 0, y: -5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-xs text-purple-300 font-semibold"
-                      >
-                        📌 {detectedObject}
-                      </motion.p>
-                    ) : (
-                      <p className="text-xs text-gray-400">Ask me anything educational!</p>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center gap-1">
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={clearChat}
-                    className="text-gray-400 hover:text-white p-1.5 rounded-lg transition-colors bg-white/5 hover:bg-white/10"
-                    title="Clear chat"
-                  >
-                    <span className="text-lg">🗑️</span>
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={toggleExpand}
-                    className="text-gray-400 hover:text-white p-2 rounded-lg transition-colors bg-white/5 hover:bg-white/10"
-                    title="Collapse"
-                  >
-                    <span className="text-lg">◀</span>
-                  </motion.button>
-                </div>
-              </>
-            )}
-            {!isExpanded && (
-              <motion.button
-                whileHover={{ scale: 1.2, rotate: 15 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={toggleExpand}
-                className="mx-auto text-3xl hover:scale-110 transition-transform p-2 rounded-full bg-gradient-to-r from-purple-600 to-blue-600"
-                title="Expand AI Assistant"
-              >
-                💬
-              </motion.button>
-            )}
+          <div className="flex items-center justify-between p-4 border-b border-white/10">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                <span className="text-xl">🤖</span>
+              </div>
+              <div>
+                <h3 className="text-white font-semibold text-sm">AI Assistant</h3>
+                {detectedObject && (
+                  <p className="text-purple-300 text-xs">{detectedObject}</p>
+                )}
+              </div>
+            </div>
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={clearChat}
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </motion.button>
           </div>
         </div>
 
-        {/* Messages */}
-        {isExpanded && (
-          <>
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-purple-500/50 scrollbar-track-transparent">
-              <AnimatePresence>
-                {messages.map((message) => (
-                  <motion.div
-                    key={message.id}
-                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                    transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                  >
-                    <div
-                      className={`max-w-[85%] rounded-2xl px-5 py-3 shadow-lg ${
-                        message.role === 'user'
-                          ? 'bg-gradient-to-br from-blue-500 via-purple-600 to-pink-600 text-white'
-                          : 'bg-gradient-to-br from-slate-700/90 to-slate-800/90 text-white border border-purple-500/30 backdrop-blur-xl'
-                      }`}
-                    >
-                      <div className="text-sm whitespace-pre-wrap break-words leading-relaxed">
-                        {message.content.split('\n').map((line, idx) => {
-                          // Handle bold text
-                          if (line.startsWith('**') && line.endsWith('**')) {
-                            return (
-                              <p key={idx} className="font-bold text-base mb-2 mt-2">
-                                {line.replace(/\*\*/g, '')}
-                              </p>
-                            );
-                          }
-                          // Handle bullet points
-                          if (line.trim().startsWith('•') || /^\d+\./.test(line.trim())) {
-                            return (
-                              <p key={idx} className="ml-3 mb-1.5 flex items-start gap-2">
-                                <span className="text-purple-300 font-bold">→</span>
-                                <span>{line.replace(/^[•\d+\.]/, '').trim()}</span>
-                              </p>
-                            );
-                          }
-                          // Handle emoji lines
-                          if (line.trim().startsWith('📖') || line.trim().startsWith('💡')) {
-                            return (
-                              <p key={idx} className="mb-2 mt-2 bg-white/10 rounded-lg p-2 border-l-4 border-purple-400">
-                                {line}
-                              </p>
-                            );
-                          }
-                          return line ? <p key={idx} className="mb-1.5">{line}</p> : <br key={idx} />;
-                        })}
-                      </div>
-                      <p className="text-xs opacity-60 mt-2 text-right">
-                        {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </p>
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-
-              {isLoading && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="flex justify-start"
+        {/* Messages - Clean & Simple */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          <AnimatePresence mode="popLayout">
+            {messages.map((message) => (
+              <motion.div
+                key={message.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.2 }}
+                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div
+                  className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                    message.role === 'user'
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
+                      : 'bg-white/10 backdrop-blur-xl text-white border border-white/10'
+                  }`}
                 >
-                  <div className="bg-gradient-to-br from-slate-700/90 to-slate-800/90 rounded-2xl px-5 py-4 border border-purple-500/30 backdrop-blur-xl shadow-lg">
-                    <div className="flex items-center gap-3">
-                      <div className="flex gap-1.5">
-                        {[0, 1, 2].map((i) => (
-                          <motion.div
-                            key={i}
-                            animate={{
-                              scale: [1, 1.5, 1],
-                              opacity: [0.3, 1, 0.3],
-                            }}
-                            transition={{
-                              duration: 1.2,
-                              repeat: Infinity,
-                              delay: i * 0.2,
-                              ease: 'easeInOut',
-                            }}
-                            className="w-2.5 h-2.5 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full"
-                          />
-                        ))}
-                      </div>
-                      <span className="text-sm text-purple-200 font-medium">Gemini AI is thinking...</span>
-                    </div>
+                  <div className="text-sm leading-relaxed whitespace-pre-wrap">
+                    {message.content.split('\n').map((line, idx) => {
+                      if (line.startsWith('**') && line.endsWith('**')) {
+                        return <p key={idx} className="font-bold mb-1">{line.replace(/\*\*/g, '')}</p>;
+                      }
+                      if (line.trim().startsWith('•') || /^\d+\./.test(line.trim())) {
+                        return <p key={idx} className="ml-2 mb-0.5 text-sm opacity-90">{line}</p>;
+                      }
+                      return line ? <p key={idx} className="mb-1">{line}</p> : <br key={idx} />;
+                    })}
                   </div>
-                </motion.div>
-              )}
-
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* Input Section - Enhanced */}
-            <div className="p-4 border-t border-purple-500/20 bg-gradient-to-r from-slate-900/50 to-slate-800/50 backdrop-blur-xl">
-              <div className="flex items-end gap-3">
-                <div className="flex-1 relative">
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder={detectedObject ? `Ask about ${detectedObject} or anything else...` : 'Ask me anything: math, physics, chemistry, biology...'}
-                    disabled={isLoading}
-                    className="w-full bg-slate-800/80 border-2 border-purple-500/30 rounded-2xl px-5 py-3.5 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50 text-sm shadow-lg transition-all backdrop-blur-sm"
-                  />
-                  {/* Animated border glow */}
-                  <motion.div
-                    className="absolute inset-0 rounded-2xl pointer-events-none"
-                    animate={{
-                      boxShadow: [
-                        '0 0 0px rgba(168, 85, 247, 0)',
-                        '0 0 20px rgba(168, 85, 247, 0.4)',
-                        '0 0 0px rgba(168, 85, 247, 0)',
-                      ],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: 'easeInOut',
-                    }}
-                  />
+                  <p className="text-xs opacity-50 mt-1 text-right">
+                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </p>
                 </div>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleSendMessage}
-                  disabled={!inputValue.trim() || isLoading}
-                  className="bg-gradient-to-r from-blue-500 via-purple-600 to-pink-600 hover:from-blue-600 hover:via-purple-700 hover:to-pink-700 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white rounded-2xl px-6 py-3.5 font-bold transition-all shadow-lg hover:shadow-purple-500/50 disabled:shadow-none"
-                >
-                  <span className="text-lg">➤</span>
-                </motion.button>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+
+          {isLoading && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex justify-start"
+            >
+              <div className="bg-white/10 backdrop-blur-xl rounded-2xl px-4 py-3 border border-white/10">
+                <div className="flex gap-1">
+                  {[0, 1, 2].map((i) => (
+                    <motion.div
+                      key={i}
+                      animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
+                      transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15 }}
+                      className="w-2 h-2 bg-purple-400 rounded-full"
+                    />
+                  ))}
+                </div>
               </div>
-              <div className="flex items-center justify-between mt-3 px-1">
-                <p className="text-xs text-gray-500">
-                  <span className="text-purple-400 font-semibold">Enter</span> to send • <span className="text-purple-400 font-semibold">Shift+Enter</span> for new line
-                </p>
-                <motion.div
-                  className="flex items-center gap-1 text-xs text-gray-500"
-                  animate={{ opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                  <span>Gemini AI Active</span>
-                </motion.div>
-              </div>
-            </div>
-          </>
-        )}
+            </motion.div>
+          )}
+
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Clean Input */}
+        <div className="p-4 border-t border-white/10 bg-white/5">
+          <div className="flex gap-2">
+            <input
+              ref={inputRef}
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Ask anything..."
+              disabled={isLoading}
+              className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50"
+            />
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleSendMessage}
+              disabled={!inputValue.trim() || isLoading}
+              className="bg-gradient-to-r from-blue-500 to-purple-600 disabled:from-gray-600 disabled:to-gray-700 text-white rounded-xl px-5 py-2.5 font-medium transition-all disabled:cursor-not-allowed"
+            >
+              ➤
+            </motion.button>
+          </div>
+          <p className="text-xs text-gray-400 mt-2 text-center">Powered by Gemini AI</p>
+        </div>
       </div>
     </motion.div>
   );

@@ -130,283 +130,243 @@ export default function AnnotatedResultViewer({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] bg-black"
+      className="fixed inset-0 z-[100] bg-gradient-to-br from-slate-950 via-purple-950/20 to-slate-950"
     >
-      {/* Main Image Container */}
-      <div className="relative w-full h-full flex items-center justify-center">
-        <img
-          src={imageUrl}
-          alt="Analyzed Object"
-          className="max-w-full max-h-full object-contain"
-        />
+      {/* Close Button - Top Right */}
+      <motion.button
+        initial={{ scale: 0, rotate: -180 }}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={{ delay: 0.3, type: 'spring' }}
+        whileHover={{ scale: 1.1, rotate: 90 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={onClose}
+        className="fixed top-6 right-6 z-[120] w-12 h-12 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-all shadow-2xl"
+      >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </motion.button>
 
-        {/* Component Labels */}
-        <AnimatePresence>
-          {analysisResult.components.map((component, index) => {
-            const xPercent = component.position.x * 100;
-            const yPercent = component.position.y * 100;
+      {/* Action Buttons - Top Center */}
+      <motion.div
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="fixed top-6 left-1/2 -translate-x-1/2 z-[120] flex gap-3"
+      >
+        <motion.button
+          whileHover={{ scale: 1.05, y: -2 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setShowInfo(!showInfo)}
+          className="px-6 py-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium shadow-lg hover:shadow-purple-500/50 transition-all backdrop-blur-xl border border-white/20"
+        >
+          <span className="flex items-center gap-2">
+            <span className="text-lg">📚</span>
+            {showInfo ? 'Hide Info' : 'Show Info'}
+          </span>
+        </motion.button>
 
-            return (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.1, duration: 0.3 }}
-                style={{
-                  position: 'absolute',
-                  left: `${xPercent}%`,
-                  top: `${yPercent}%`,
-                  transform: 'translate(-50%, -50%)',
-                }}
-                className="cursor-pointer"
-                onClick={() => setSelectedComponent(component)}
-              >
-                {/* Pulsing Dot */}
+        <motion.button
+          whileHover={{ scale: 1.05, y: -2 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={handleShare}
+          className="px-6 py-3 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 text-white font-medium shadow-lg hover:bg-white/20 transition-all"
+        >
+          <span className="flex items-center gap-2">
+            <span className="text-lg">↗️</span>
+            Share
+          </span>
+        </motion.button>
+      </motion.div>
+
+      {/* Main Content Area */}
+      <div className="w-full h-full flex items-center justify-center p-24 pl-96">
+        {/* Image Container with Annotations */}
+        <div className="relative max-w-5xl max-h-full">
+          <motion.img
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.1, type: 'spring', stiffness: 100 }}
+            src={imageUrl}
+            alt="Analyzed Object"
+            className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl"
+          />
+
+          {/* Component Labels - Minimal & Elegant */}
+          <AnimatePresence>
+            {analysisResult.components.map((component, index) => {
+              const xPercent = component.position.x * 100;
+              const yPercent = component.position.y * 100;
+
+              return (
                 <motion.div
-                  animate={{
-                    scale: [1, 1.3, 1],
-                    opacity: [1, 0.7, 1],
+                  key={index}
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0, opacity: 0 }}
+                  transition={{ delay: 0.3 + index * 0.1, type: 'spring' }}
+                  style={{
+                    position: 'absolute',
+                    left: `${xPercent}%`,
+                    top: `${yPercent}%`,
+                    transform: 'translate(-50%, -50%)',
                   }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                  className="absolute inset-0 w-4 h-4 bg-kairos-accent rounded-full"
-                />
-                
-                {/* Center Dot */}
-                <div className="absolute inset-0 w-4 h-4 bg-white rounded-full border-2 border-kairos-accent shadow-lg" />
-
-                {/* Label */}
-                <motion.div
-                  initial={{ y: -10, opacity: 0 }}
-                  animate={{ y: -40, opacity: 1 }}
-                  transition={{ delay: index * 0.1 + 0.2 }}
-                  className="absolute left-1/2 transform -translate-x-1/2 whitespace-nowrap"
+                  className="cursor-pointer group"
+                  onClick={() => setSelectedComponent(component)}
                 >
-                  <div className="bg-gradient-to-r from-kairos-primary to-kairos-secondary text-white px-3 py-1.5 rounded-lg text-sm font-bold shadow-xl">
+                  {/* Dot */}
+                  <motion.div
+                    whileHover={{ scale: 1.5 }}
+                    className="w-3 h-3 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 shadow-lg relative z-10"
+                  >
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 animate-ping opacity-75"></div>
+                  </motion.div>
+
+                  {/* Label */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    whileHover={{ opacity: 1, y: 0, scale: 1.05 }}
+                    className="absolute top-5 left-1/2 -translate-x-1/2 whitespace-nowrap px-3 py-1.5 rounded-full bg-black/80 backdrop-blur-xl border border-white/20 text-white text-xs font-medium shadow-xl opacity-0 group-hover:opacity-100 transition-all"
+                  >
                     {component.name}
-                  </div>
+                  </motion.div>
                 </motion.div>
-              </motion.div>
-            );
-          })}
-        </AnimatePresence>
+              );
+            })}
+          </AnimatePresence>
 
-        {/* Process Arrows */}
-        {analysisResult.processes?.map((process, index) => {
-          const fromX = process.from.x * 100;
-          const fromY = process.from.y * 100;
-          const toX = process.to.x * 100;
-          const toY = process.to.y * 100;
-
-          const angle = Math.atan2(toY - fromY, toX - fromX) * (180 / Math.PI);
-          const length = Math.sqrt(Math.pow(toX - fromX, 2) + Math.pow(toY - fromY, 2));
-
-          return (
-            <motion.div
-              key={`process-${index}`}
-              initial={{ opacity: 0, scaleX: 0 }}
-              animate={{ opacity: 1, scaleX: 1 }}
-              transition={{ delay: 0.5 + index * 0.2, duration: 0.5 }}
-              style={{
-                position: 'absolute',
-                left: `${fromX}%`,
-                top: `${fromY}%`,
-                width: `${length}%`,
-                height: '3px',
-                backgroundColor: process.color,
-                transformOrigin: 'left center',
-                transform: `rotate(${angle}deg)`,
-              }}
-            >
-              {/* Arrow Label */}
-              <div
-                style={{
-                  position: 'absolute',
-                  top: '-30px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  backgroundColor: process.color,
-                  color: 'white',
-                  padding: '4px 12px',
-                  borderRadius: '12px',
-                  fontSize: '12px',
-                  fontWeight: 'bold',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {process.label}
-              </div>
-            </motion.div>
-          );
-        })}
-
-        {/* Top Bar */}
-        <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/90 to-transparent p-4 z-10">
-          <div className="flex items-center justify-between max-w-7xl mx-auto">
-            <div>
-              <h2 className="text-2xl font-bold text-white">
-                {analysisResult.object_detected}
-              </h2>
-              <p className="text-sm text-gray-300">
-                Confidence: {Math.round(analysisResult.confidence * 100)}%
-              </p>
-            </div>
-            <button
-              onClick={onClose}
-              className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm flex items-center justify-center transition-colors"
-            >
-              <span className="text-white text-2xl">×</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Bottom Action Bar */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-6 z-10">
-          <div className="flex items-center justify-center gap-4 max-w-7xl mx-auto">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setShowInfo(!showInfo)}
-              className="px-6 py-3 bg-gradient-to-r from-kairos-primary to-kairos-secondary text-white rounded-lg font-bold shadow-lg hover:shadow-xl transition-all"
-            >
-              📚 Educational Info
-            </motion.button>
-
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                if (analysisResult.concepts[0]) {
-                  onLearnMore(analysisResult.concepts[0].name);
-                }
-              }}
-              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-bold shadow-lg hover:shadow-xl transition-all"
-            >
-              🎓 Learn More
-            </motion.button>
-
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleShare}
-              className="px-6 py-3 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-lg font-bold shadow-lg hover:shadow-xl transition-all"
-            >
-              📤 Share
-            </motion.button>
-          </div>
+          {/* Object Title Overlay - Bottom */}
+          <motion.div
+            initial={{ y: 50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 via-black/50 to-transparent backdrop-blur-sm rounded-b-2xl"
+          >
+            <h2 className="text-3xl font-bold text-white mb-1">
+              {analysisResult.object_detected}
+            </h2>
+            <p className="text-purple-300 text-sm">
+              Confidence: {(analysisResult.confidence * 100).toFixed(1)}%
+            </p>
+          </motion.div>
         </div>
       </div>
-
-      {/* Component Details Modal */}
-      <AnimatePresence>
-        {selectedComponent && (
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-            className="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-black/95 backdrop-blur-lg rounded-2xl p-6 max-w-md z-20 border border-kairos-accent shadow-2xl"
-          >
-            <h3 className="text-xl font-bold text-white mb-2">
-              {selectedComponent.name}
-            </h3>
-            <p className="text-gray-300 mb-4">
-              {selectedComponent.description}
-            </p>
-            <button
-              onClick={() => setSelectedComponent(null)}
-              className="px-4 py-2 bg-kairos-accent text-white rounded-lg font-bold hover:bg-kairos-secondary transition-colors"
-            >
-              Close
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Educational Info Panel */}
       <AnimatePresence>
         {showInfo && (
           <motion.div
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 25 }}
-            className="fixed right-0 top-0 bottom-0 w-96 bg-black/95 backdrop-blur-xl border-l border-kairos-accent p-6 overflow-y-auto z-20"
+            initial={{ x: 100, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 100, opacity: 0 }}
+            transition={{ type: 'spring', damping: 20 }}
+            className="fixed right-6 top-24 bottom-6 w-96 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl shadow-2xl overflow-hidden z-[110]"
           >
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-white">Educational Info</h3>
-              <button
-                onClick={() => setShowInfo(false)}
-                className="text-white text-2xl hover:text-kairos-accent transition-colors"
-              >
-                ×
-              </button>
-            </div>
-
-            {/* Description */}
-            <div className="mb-6">
-              <h4 className="text-sm font-bold text-kairos-accent mb-2">DESCRIPTION</h4>
-              <p className="text-gray-300 leading-relaxed">
-                {analysisResult.educational_info.description}
-              </p>
-            </div>
-
-            {/* Key Facts */}
-            <div className="mb-6">
-              <h4 className="text-sm font-bold text-kairos-accent mb-2">KEY FACTS</h4>
-              <ul className="space-y-2">
-                {analysisResult.educational_info.key_facts.map((fact, index) => (
-                  <li key={index} className="text-gray-300 flex items-start gap-2">
-                    <span className="text-kairos-accent">•</span>
-                    <span>{fact}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Scientific Principles */}
-            <div className="mb-6">
-              <h4 className="text-sm font-bold text-kairos-accent mb-2">SCIENTIFIC PRINCIPLES</h4>
-              <ul className="space-y-2">
-                {analysisResult.educational_info.scientific_principles.map((principle, index) => (
-                  <li key={index} className="text-gray-300 flex items-start gap-2">
-                    <span className="text-kairos-accent">•</span>
-                    <span>{principle}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Fun Fact */}
-            <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-lg p-4 border border-yellow-500/30">
-              <h4 className="text-sm font-bold text-yellow-400 mb-2">💡 FUN FACT</h4>
-              <p className="text-gray-300 italic">
-                {analysisResult.educational_info.fun_fact}
-              </p>
-            </div>
-
-            {/* Concepts */}
-            <div className="mt-6">
-              <h4 className="text-sm font-bold text-kairos-accent mb-3">RELATED CONCEPTS</h4>
-              <div className="space-y-2">
-                {analysisResult.concepts.map((concept, index) => (
-                  <div
-                    key={index}
-                    className="bg-gradient-to-r from-kairos-primary/20 to-kairos-secondary/20 rounded-lg p-3 border border-kairos-accent/30"
-                  >
-                    <div className="font-bold text-white mb-1">{concept.name}</div>
-                    <div className="text-xs text-gray-400 uppercase mb-2">{concept.category}</div>
-                    {concept.formulas.length > 0 && (
-                      <div className="text-sm text-gray-300 font-mono">
-                        {concept.formulas[0]}
-                      </div>
-                    )}
-                  </div>
-                ))}
+            <div className="h-full overflow-y-auto p-6">
+              {/* Description */}
+              <div className="mb-6">
+                <h3 className="text-white font-bold text-lg mb-3">About</h3>
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  {analysisResult.educational_info.description}
+                </p>
               </div>
+
+              {/* Key Facts */}
+              {analysisResult.educational_info.key_facts.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-white font-bold text-lg mb-3">Key Facts</h3>
+                  <div className="space-y-2">
+                    {analysisResult.educational_info.key_facts.map((fact, idx) => (
+                      <motion.div
+                        key={idx}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.1 }}
+                        className="flex items-start gap-3 text-sm text-gray-300"
+                      >
+                        <span className="text-purple-400 mt-1">•</span>
+                        <span>{fact}</span>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Fun Fact */}
+              {analysisResult.educational_info.fun_fact && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="p-4 rounded-2xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-purple-400/30"
+                >
+                  <p className="text-purple-300 text-sm font-medium mb-1">💡 Fun Fact</p>
+                  <p className="text-white text-sm">
+                    {analysisResult.educational_info.fun_fact}
+                  </p>
+                </motion.div>
+              )}
+
+              {/* Related Concepts */}
+              {analysisResult.concepts.length > 0 && (
+                <div className="mt-6">
+                  <h3 className="text-white font-bold text-lg mb-3">Related Concepts</h3>
+                  <div className="space-y-2">
+                    {analysisResult.concepts.map((concept, idx) => (
+                      <motion.button
+                        key={idx}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.1 }}
+                        whileHover={{ scale: 1.02, x: 5 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => onLearnMore(concept.name)}
+                        className="w-full text-left p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all"
+                      >
+                        <p className="text-white font-medium text-sm">{concept.name}</p>
+                        <p className="text-gray-400 text-xs">{concept.category}</p>
+                      </motion.button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Selected Component Detail Modal */}
+      <AnimatePresence>
+        {selectedComponent && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[115] bg-black/60 backdrop-blur-sm flex items-center justify-center"
+            onClick={() => setSelectedComponent(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.8, y: 50 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.8, y: 50 }}
+              transition={{ type: 'spring', damping: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl p-8 max-w-md shadow-2xl"
+            >
+              <h3 className="text-2xl font-bold text-white mb-3">
+                {selectedComponent.name}
+              </h3>
+              <p className="text-gray-300 text-sm leading-relaxed mb-6">
+                {selectedComponent.description}
+              </p>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setSelectedComponent(null)}
+                className="w-full py-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium"
+              >
+                Close
+              </motion.button>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
