@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CameraFeed from '@/components/CameraFeed';
 import ObjectDetector from '@/components/ObjectDetector';
+import StaticAROverlay from '@/components/StaticAROverlay';
 import { conceptAPI } from '@/lib/api/client';
 import { useARStore } from '@/lib/stores/arStore';
 import Link from 'next/link';
@@ -417,83 +418,19 @@ export default function ScanPage() {
           />
         )}
 
-        {/* Captured Image with AR Annotations */}
+        {/* Static AR Overlay on Captured Image */}
         <AnimatePresence>
           {capturedImageUrl && analysisResult && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/95 backdrop-blur-sm z-40"
-            >
-              <div className="relative w-full h-full flex items-center justify-center p-8">
-                <div className="relative max-w-4xl max-h-full">
-                  <img 
-                    src={capturedImageUrl} 
-                    alt="Captured frame"
-                    className="max-w-full max-h-full rounded-2xl shadow-2xl border-4 border-purple-500/30"
-                  />
-                  
-                  {/* AR Annotations */}
-                  {analysisResult.components?.map((component: any, idx: number) => {
-                    const imgElement = document.querySelector('img[alt="Captured frame"]') as HTMLImageElement;
-                    if (!imgElement) return null;
-
-                    const rect = imgElement.getBoundingClientRect();
-                    const x = component.position.x * rect.width + rect.left;
-                    const y = component.position.y * rect.height + rect.top;
-
-                    return (
-                      <motion.div
-                        key={idx}
-                        initial={{ scale: 0, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ delay: idx * 0.1 }}
-                        style={{
-                          position: 'fixed',
-                          left: `${x}px`,
-                          top: `${y}px`,
-                          transform: 'translate(-50%, -50%)',
-                        }}
-                        className="pointer-events-none"
-                      >
-                        {/* Dot */}
-                        <div className="w-4 h-4 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 animate-pulse shadow-lg"></div>
-                        
-                        {/* Label */}
-                        <motion.div
-                          initial={{ y: -10, opacity: 0 }}
-                          animate={{ y: -30, opacity: 1 }}
-                          transition={{ delay: idx * 0.1 + 0.2 }}
-                          className="absolute left-1/2 -translate-x-1/2 whitespace-nowrap"
-                        >
-                          <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-xl border border-white/20">
-                            {component.name}
-                          </div>
-                        </motion.div>
-                      </motion.div>
-                    );
-                  })}
-
-                  {/* Close Button */}
-                  <motion.button
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => {
-                      setCapturedImageUrl(null);
-                      setAnalysisResult(null);
-                      setIsScanning(true);
-                      setEnabled(true);
-                    }}
-                    className="absolute -top-4 -right-4 w-12 h-12 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-full shadow-2xl flex items-center justify-center font-bold text-xl border-4 border-white/20"
-                  >
-                    ✕
-                  </motion.button>
-                </div>
-              </div>
-            </motion.div>
+            <StaticAROverlay
+              imageUrl={capturedImageUrl}
+              objectType={analysisResult.object_detected || 'Unknown Object'}
+              onClose={() => {
+                setCapturedImageUrl(null);
+                setAnalysisResult(null);
+                setIsScanning(true);
+                setEnabled(true);
+              }}
+            />
           )}
         </AnimatePresence>
 

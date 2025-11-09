@@ -12,7 +12,7 @@ from PIL import Image
 import io
 
 # Configure Gemini API
-GEMINI_API_KEY = "AIzaSyAHWWbsXYCO6N11bBf_rkQiTuZaQ9zsY4A"
+GEMINI_API_KEY = "AIzaSyBwh4pakzAJ_S0gbGXSWs5ATskowjZVBpQ"
 genai.configure(api_key=GEMINI_API_KEY)
 # Use Gemini 2.0 Flash - lowest cost, fastest model
 gemini_model = genai.GenerativeModel('gemini-2.0-flash-exp')
