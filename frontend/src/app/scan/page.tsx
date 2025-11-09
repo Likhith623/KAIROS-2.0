@@ -289,18 +289,6 @@ export default function ScanPage() {
             </motion.button>
           </div>
 
-          {/* AI Badge */}
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-white/20"
-          >
-            <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-            <span className="text-sm text-gray-300">AI Assistant Online</span>
-            <span className="text-lg">🤖</span>
-          </motion.div>
-
           {/* Detection Status */}
           <AnimatePresence>
             {currentObject && (
@@ -308,7 +296,7 @@ export default function ScanPage() {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="mt-3 px-4 py-2 rounded-xl bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30"
+                className="mt-4 px-4 py-2 rounded-xl bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30"
               >
                 <p className="text-xs text-green-300 font-medium">Currently Detecting:</p>
                 <p className="text-white font-bold text-lg">{currentObject}</p>
@@ -390,8 +378,8 @@ export default function ScanPage() {
         </div>
 
         {/* Input Area */}
-        <div className="p-6 border-t border-white/10 bg-white/5 backdrop-blur-xl">
-          <div className="flex gap-3">
+        <div className="p-4 border-t border-white/10 bg-white/5 backdrop-blur-xl">
+          <div className="flex gap-2">
             <input
               type="text"
               value={inputValue}
@@ -399,21 +387,17 @@ export default function ScanPage() {
               onKeyPress={handleKeyPress}
               placeholder="Ask me anything..."
               disabled={isChatLoading}
-              className="flex-1 bg-white/10 border border-white/20 rounded-2xl px-5 py-3.5 text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50 transition-all"
+              className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50 transition-all"
             />
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleSendMessage}
               disabled={!inputValue.trim() || isChatLoading}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 disabled:from-gray-600 disabled:to-gray-700 text-white rounded-2xl px-6 py-3.5 font-semibold transition-all disabled:cursor-not-allowed shadow-lg"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 disabled:from-gray-600 disabled:to-gray-700 text-white rounded-xl px-5 py-2.5 font-semibold transition-all disabled:cursor-not-allowed shadow-lg"
             >
               <span className="text-lg">➤</span>
             </motion.button>
-          </div>
-          <div className="mt-3 flex items-center justify-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></div>
-            <p className="text-xs text-gray-400">Powered by Gemini AI</p>
           </div>
         </div>
       </motion.div>
@@ -615,10 +599,10 @@ export default function ScanPage() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.9 }}
               transition={{ type: "spring", damping: 15, stiffness: 300 }}
-              className="absolute bottom-28 left-1/2 -translate-x-1/2 z-50"
+              className="text-center text-white text-xs font-medium mt-2"
             >
               {/* Glow effect container */}
-              <div className="relative flex items-center justify-center">
+              <div className="relative">
                 {/* Outer glow ring */}
                 <motion.div
                   animate={{
@@ -721,34 +705,36 @@ export default function ScanPage() {
         </AnimatePresence>
 
         {/* Scan Control Button - Smaller size */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-50">
-          <motion.button
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={toggleScanning}
-            className={`relative w-16 h-16 rounded-full font-bold shadow-2xl transition-all overflow-hidden ${
-              isScanning 
-                ? 'bg-gradient-to-r from-red-500 to-pink-500' 
-                : 'bg-gradient-to-r from-blue-600 to-purple-600'
-            }`}
-          >
-            <motion.div
-              animate={isScanning ? { scale: [1, 1.2, 1] } : {}}
-              transition={{ duration: 1.5, repeat: Infinity }}
-              className="absolute inset-0 bg-white/20 rounded-full"
-            ></motion.div>
-            <span className="relative text-white text-3xl">
-              {isScanning ? '⏹' : '🔍'}
-            </span>
-          </motion.button>
-          
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center text-white text-xs font-medium mt-2"
-          >
-            {isScanning ? 'Stop' : 'Scan'}
-          </motion.p>
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-50">
+          <div className="flex flex-col items-center">
+            <motion.button
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={toggleScanning}
+              className={`relative w-16 h-16 rounded-full font-bold shadow-2xl transition-all overflow-hidden ${
+                isScanning 
+                  ? 'bg-gradient-to-r from-red-500 to-pink-500' 
+                  : 'bg-gradient-to-r from-blue-600 to-purple-600'
+              }`}
+            >
+              <motion.div
+                animate={isScanning ? { scale: [1, 1.2, 1] } : {}}
+                transition={{ duration: 1.5, repeat: Infinity }}
+                className="absolute inset-0 bg-white/20 rounded-full"
+              ></motion.div>
+              <span className="relative text-white text-3xl">
+                {isScanning ? '⏹' : '🔍'}
+              </span>
+            </motion.button>
+            
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center text-white text-xs font-medium mt-2"
+            >
+              {isScanning ? 'Stop' : 'Scan'}
+            </motion.p>
+          </div>
         </div>
 
         {/* Instructions (when not scanning) */}
