@@ -424,6 +424,14 @@ export default function ScanPage() {
           </div>
         </div>
       )}
+
+      {/* Object Chatbot - Visible before scanning and after analysis */}
+      {(!isScanning || analysisResult) && (
+        <ObjectChatbot 
+          detectedObject={analysisResult?.object_detected || null}
+          objectInfo={analysisResult}
+        />
+      )}
     </div>
   );
 }

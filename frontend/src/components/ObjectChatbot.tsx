@@ -237,14 +237,14 @@ export default function ObjectChatbot({ detectedObject, objectInfo }: ObjectChat
       animate={{ x: 0, opacity: 1 }}
       exit={{ x: -400, opacity: 0 }}
       transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-      className={`absolute left-0 top-0 bottom-0 z-40 ${isExpanded ? 'w-96' : 'w-16'} transition-all duration-300`}
+      className={`fixed left-4 top-20 bottom-24 z-30 ${isExpanded ? 'w-80' : 'w-14'} transition-all duration-300`}
     >
-      <div className="h-full bg-gradient-to-b from-slate-900/98 via-slate-800/98 to-slate-900/98 backdrop-blur-2xl border-r border-purple-500/20 shadow-2xl flex flex-col">
+      <div className="h-full bg-gradient-to-b from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-xl border-2 border-purple-500/30 shadow-2xl rounded-2xl flex flex-col overflow-hidden">
         {/* Header with gradient accent */}
         <div className="relative">
           {/* Animated gradient bar */}
           <motion.div
-            className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
+            className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-t-2xl"
             animate={{
               backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
             }}
@@ -258,12 +258,12 @@ export default function ObjectChatbot({ detectedObject, objectInfo }: ObjectChat
             }}
           />
           
-          <div className="flex items-center justify-between p-4 border-b border-white/10 bg-gradient-to-r from-purple-900/30 to-blue-900/30">
+          <div className="flex items-center justify-between p-3 border-b border-white/10 bg-gradient-to-r from-purple-900/30 to-blue-900/30">
             {isExpanded && (
               <>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <motion.span 
-                    className="text-3xl"
+                    className="text-2xl"
                     animate={{
                       rotate: [0, 10, -10, 0],
                     }}
@@ -276,8 +276,8 @@ export default function ObjectChatbot({ detectedObject, objectInfo }: ObjectChat
                     🤖
                   </motion.span>
                   <div>
-                    <h3 className="text-white font-bold text-lg bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                      KAIROS AI Assistant
+                    <h3 className="text-white font-bold text-sm bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                      KAIROS Assistant
                     </h3>
                     {detectedObject ? (
                       <motion.p 
@@ -292,12 +292,12 @@ export default function ObjectChatbot({ detectedObject, objectInfo }: ObjectChat
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={clearChat}
-                    className="text-gray-400 hover:text-white p-2 rounded-lg transition-colors bg-white/5 hover:bg-white/10"
+                    className="text-gray-400 hover:text-white p-1.5 rounded-lg transition-colors bg-white/5 hover:bg-white/10"
                     title="Clear chat"
                   >
                     <span className="text-lg">🗑️</span>
