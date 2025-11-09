@@ -17,7 +17,7 @@ export default function ScanPage() {
   const [concepts, setConcepts] = useState<ConceptResponse | null>(null);
   const [isLoadingConcepts, setIsLoadingConcepts] = useState(false);
   
-  // Gemini Vision Analysis State
+  // AI Vision Analysis State
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [capturedImageUrl, setCapturedImageUrl] = useState<string | null>(null);
@@ -39,7 +39,7 @@ export default function ScanPage() {
     const welcomeMsg = {
       id: Date.now().toString(),
       role: 'assistant',
-      content: `👋 **Welcome to KAIROS 2.0 AI Assistant!**\n\n🎓 **I'm your intelligent educational companion powered by Gemini AI.**\n\n**I can help you with:**\n• 📸 Analyzing scanned objects\n• 🔬 Explaining scientific concepts\n• 📐 Solving math problems\n• 🧪 Understanding chemistry\n• ⚡ Physics questions\n• 🌱 Biology topics\n• 💡 Any educational question!\n\n**To get started:**\n1. Click the scan button 🔍\n2. Point camera at any object\n3. I'll analyze and explain it!\n\nReady to explore? 🚀`,
+      content: `👋 Welcome to KAIROS 2.0 AI Assistant!\n\n🎓 I'm your intelligent educational companion.\n\nI can help you with:\n• 📸 Analyzing scanned objects\n• 🔬 Explaining scientific concepts\n• 📐 Solving math problems\n• 🧪 Understanding chemistry\n• ⚡ Physics questions\n• 🌱 Biology topics\n• 💡 Any educational question!\n\nTo get started:\n1. Click the scan button 🔍\n2. Point camera at any object\n3. I'll analyze and explain it!\n\nReady to explore? 🚀`,
       timestamp: new Date(),
     };
     setMessages([welcomeMsg]);
@@ -66,8 +66,8 @@ export default function ScanPage() {
   }, [currentObject]);
 
 
-  // Capture frame and analyze with Gemini Vision
-  const handleAnalyzeWithAI = async () => {
+  // Capture frame and analyze with AI Vision
+  const analyzeWithAI = async () => {
     try {
       setIsAnalyzing(true);
 
@@ -114,7 +114,7 @@ export default function ScanPage() {
       }
 
       const result = await response.json();
-      console.log('✅ Gemini Vision Analysis:', result);
+      console.log('✅ AI Vision Analysis:', result);
       
       setAnalysisResult(result);
       
@@ -122,7 +122,7 @@ export default function ScanPage() {
       const aiMsg = {
         id: Date.now().toString(),
         role: 'assistant',
-        content: `🎯 **Detected: ${result.object_detected}**\n\n📊 **Confidence:** ${Math.round((result.confidence || 0.9) * 100)}%\n\n${result.educational_info?.description || 'Analyzing the object...'}\n\n**Key Facts:**\n${(result.educational_info?.key_facts || []).map((fact: string, idx: number) => `${idx + 1}. ${fact}`).join('\n')}\n\n💡 **Fun Fact:** ${result.educational_info?.fun_fact || 'Ask me to learn more!'}`,
+        content: `🎯 Detected: ${result.object_detected}\n\n${result.educational_info?.description || 'Analyzing the object...'}\n\nKey Facts:\n${(result.educational_info?.key_facts || []).map((fact: string, idx: number) => `${idx + 1}. ${fact}`).join('\n')}\n\n💡 Fun Fact: ${result.educational_info?.fun_fact || 'Ask me to learn more!'}`,
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, aiMsg]);
@@ -130,7 +130,7 @@ export default function ScanPage() {
       // Fetch web info
       if (result.object_detected) {
         try {
-          const webResponse = await conceptAPI.extractConcepts(result.object_detected, result.confidence || 0.9);
+          const webResponse = await conceptAPI.extractConcepts(result.object_detected, 0.9);
           setConcepts(webResponse);
           setStoreConcepts(webResponse.concepts);
         } catch (error) {
@@ -170,7 +170,7 @@ export default function ScanPage() {
       const scanMsg = {
         id: Date.now().toString(),
         role: 'assistant',
-        content: '🔍 **Scanning mode activated!**\n\nPoint your camera at any object and I\'ll detect it. Once detected, tap "Analyze" to get detailed information!',
+        content: '🔍 Scanning mode activated!\n\nPoint your camera at any object and I\'ll detect it. Once detected, tap "Analyze" to get detailed information!',
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, scanMsg]);
@@ -247,7 +247,7 @@ export default function ScanPage() {
     const welcomeMsg = {
       id: Date.now().toString(),
       role: 'assistant',
-      content: '🔄 **Chat cleared!**\n\nHow can I help you today? Scan an object or ask me any question!',
+      content: '🔄 Chat cleared!\n\nHow can I help you today? Scan an object or ask me any question!',
       timestamp: new Date(),
     };
     setMessages([welcomeMsg]);
@@ -326,16 +326,16 @@ export default function ScanPage() {
                 >
                   <div className="text-sm leading-relaxed whitespace-pre-wrap">
                     {message.content.split('\n').map((line: string, idx: number) => {
-                      if (line.startsWith('**') && line.endsWith('**')) {
-                        return <p key={idx} className="font-bold text-base mb-2 mt-1">{line.replace(/\*\*/g, '')}</p>;
+                      // Remove ** symbols from the text
+                      const cleanLine = line.replace(/\*\*/g, '');
+                      
+                      if (cleanLine.trim().startsWith('•') || /^\d+\./.test(cleanLine.trim())) {
+                        return <p key={idx} className="ml-3 mb-1 text-sm opacity-90">{cleanLine}</p>;
                       }
-                      if (line.trim().startsWith('•') || /^\d+\./.test(line.trim())) {
-                        return <p key={idx} className="ml-3 mb-1 text-sm opacity-90">{line}</p>;
+                      if (cleanLine.startsWith('🎯') || cleanLine.startsWith('📊') || cleanLine.startsWith('💡') || cleanLine.startsWith('🔍')) {
+                        return <p key={idx} className="font-semibold text-sm mb-1 mt-2">{cleanLine}</p>;
                       }
-                      if (line.startsWith('🎯') || line.startsWith('📊') || line.startsWith('💡') || line.startsWith('🔍')) {
-                        return <p key={idx} className="font-semibold text-sm mb-1 mt-2">{line}</p>;
-                      }
-                      return line ? <p key={idx} className="mb-1">{line}</p> : <br key={idx} />;
+                      return cleanLine ? <p key={idx} className="mb-1 font-medium">{cleanLine}</p> : <br key={idx} />;
                     })}
                   </div>
                   <p className="text-xs opacity-50 mt-2 text-right">
@@ -497,51 +497,150 @@ export default function ScanPage() {
           )}
         </AnimatePresence>
 
-        {/* Analyzing Overlay */}
+        {/* Analyzing Overlay - World-Class Animation */}
         <AnimatePresence>
           {isAnalyzing && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/90 backdrop-blur-xl z-50 flex items-center justify-center"
+              className="absolute inset-0 bg-gradient-to-br from-purple-900/95 via-black/95 to-blue-900/95 backdrop-blur-2xl z-50 flex items-center justify-center overflow-hidden"
             >
-              <div className="text-center">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                  className="text-9xl mb-6"
-                >
-                  🧠
-                </motion.div>
+              {/* Animated background particles */}
+              <div className="absolute inset-0">
+                {[...Array(20)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute w-2 h-2 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full"
+                    initial={{ 
+                      x: Math.random() * window.innerWidth, 
+                      y: Math.random() * window.innerHeight,
+                      scale: 0,
+                      opacity: 0
+                    }}
+                    animate={{ 
+                      y: [null, Math.random() * window.innerHeight],
+                      x: [null, Math.random() * window.innerWidth],
+                      scale: [0, 1, 0],
+                      opacity: [0, 0.6, 0]
+                    }}
+                    transition={{ 
+                      duration: 3 + Math.random() * 2, 
+                      repeat: Infinity,
+                      delay: Math.random() * 2,
+                      ease: "easeInOut"
+                    }}
+                  />
+                ))}
+              </div>
+
+              <div className="text-center relative z-10">
+                {/* Main brain icon with complex animation */}
+                <div className="relative mb-8">
+                  {/* Pulsing glow layers */}
+                  <motion.div
+                    animate={{ 
+                      scale: [1, 1.4, 1],
+                      opacity: [0.2, 0.5, 0.2]
+                    }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute inset-0 flex items-center justify-center"
+                  >
+                    <div className="w-40 h-40 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 blur-3xl"></div>
+                  </motion.div>
+
+                  <motion.div
+                    animate={{ 
+                      scale: [1.2, 1.6, 1.2],
+                      opacity: [0.15, 0.35, 0.15]
+                    }}
+                    transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                    className="absolute inset-0 flex items-center justify-center"
+                  >
+                    <div className="w-48 h-48 rounded-full bg-gradient-to-r from-blue-600 to-pink-600 blur-3xl"></div>
+                  </motion.div>
+
+                  {/* Center brain icon with enhanced animation */}
+                  <motion.div
+                    animate={{ 
+                      rotate: [0, 5, -5, 0],
+                      scale: [1, 1.08, 1],
+                      y: [0, -10, 0]
+                    }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                    className="relative text-9xl mb-6 drop-shadow-2xl"
+                  >
+                    🧠
+                  </motion.div>
+                </div>
+
+                {/* Title with gradient animation */}
                 <motion.h2
-                  animate={{ opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="text-4xl font-bold text-white mb-3"
+                  animate={{ 
+                    backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
+                  }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                  className="text-5xl font-black mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent"
+                  style={{ backgroundSize: '200% 200%' }}
                 >
-                  Analyzing with Gemini Vision
+                  Analyzing with AI Vision
                 </motion.h2>
-                <p className="text-gray-400 text-xl">
-                  Detecting components and extracting insights...
-                </p>
                 
-                <div className="flex items-center justify-center gap-3 mt-8">
-                  {[0, 1, 2, 3].map((i) => (
+                {/* Subtitle with typing effect */}
+                <motion.p 
+                  animate={{ opacity: [0.5, 1, 0.5] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                  className="text-gray-300 text-xl mb-8"
+                >
+                  Detecting components and extracting insights...
+                </motion.p>
+                
+                {/* Progress bar with moving gradient */}
+                <div className="w-96 h-2 bg-white/10 rounded-full overflow-hidden mx-auto mb-8">
+                  <motion.div
+                    animate={{ 
+                      x: ['-100%', '100%']
+                    }}
+                    transition={{ 
+                      duration: 1.5, 
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                    className="h-full w-1/2 bg-gradient-to-r from-transparent via-purple-500 to-transparent"
+                  />
+                </div>
+
+                {/* Neural network visualization */}
+                <div className="flex items-end justify-center gap-2 h-16 mb-8">
+                  {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
                     <motion.div
                       key={i}
                       animate={{
-                        scale: [1, 1.5, 1],
-                        opacity: [0.3, 1, 0.3],
+                        scaleY: [0.3, 1, 0.3],
+                        opacity: [0.4, 1, 0.4]
                       }}
                       transition={{
-                        duration: 1.5,
+                        duration: 0.8,
                         repeat: Infinity,
-                        delay: i * 0.2,
+                        delay: i * 0.08,
+                        ease: "easeInOut"
                       }}
-                      className="w-4 h-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
+                      className="w-2 bg-gradient-to-t from-blue-500 via-purple-500 to-pink-500 rounded-full"
+                      style={{ height: '100%', transformOrigin: 'bottom' }}
                     />
                   ))}
                 </div>
+
+                {/* Status text */}
+                <motion.div
+                  animate={{ opacity: [0, 1, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="mt-8"
+                >
+                  <p className="text-sm text-purple-300 font-medium">
+                    Processing visual data • Identifying components • Generating insights
+                  </p>
+                </motion.div>
               </div>
             </motion.div>
           )}
@@ -624,7 +723,7 @@ export default function ScanPage() {
                     boxShadow: "0 20px 40px -12px rgba(168, 85, 247, 0.5)",
                   }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={handleAnalyzeWithAI}
+                  onClick={analyzeWithAI}
                   className="relative px-6 py-3 rounded-2xl font-bold text-base shadow-2xl overflow-hidden group backdrop-blur-xl border-2 border-white/20"
                   style={{
                     background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.95) 0%, rgba(236, 72, 153, 0.95) 50%, rgba(59, 130, 246, 0.95) 100%)',

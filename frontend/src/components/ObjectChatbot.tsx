@@ -29,7 +29,7 @@ export default function ObjectChatbot({ detectedObject, objectInfo }: ObjectChat
       const welcomeMsg: Message = {
         id: Date.now().toString(),
         role: 'assistant',
-        content: `🔬 **Object Detected: ${detectedObject}**\n\nGenerating comprehensive educational information...`,
+        content: `🔬 Object Detected: ${detectedObject}\n\nGenerating comprehensive educational information...`,
         timestamp: new Date(),
       };
       setMessages([welcomeMsg]);
@@ -41,7 +41,7 @@ export default function ObjectChatbot({ detectedObject, objectInfo }: ObjectChat
       const initialMsg: Message = {
         id: Date.now().toString(),
         role: 'assistant',
-        content: `👋 **Welcome to KAIROS 2.0 AI Assistant!**\n\n🎓 **I'm your intelligent educational companion powered by Gemini AI.**\n\n**I can help you with:**\n• 📸 Analyzing scanned objects\n• 🔬 Explaining scientific concepts\n• 📐 Solving math problems\n• 🧪 Understanding chemistry\n• ⚡ Physics questions\n• 🌱 Biology topics\n• 💡 Any educational question!\n\n**To scan objects:**\n1. Tap the 🔍 button to start scanning\n2. Point camera at any object\n3. Tap "Analyze with AI" 🤖\n\n**Or just ask me anything!**\nExample: "Explain photosynthesis" or "What is Newton's second law?"\n\nReady to learn? Let's explore! 🚀`,
+        content: `👋 Welcome to KAIROS 2.0 AI Assistant!\n\n🎓 I'm your intelligent educational companion.\n\nI can help you with:\n• 📸 Analyzing scanned objects\n• 🔬 Explaining scientific concepts\n• 📐 Solving math problems\n• 🧪 Understanding chemistry\n• ⚡ Physics questions\n• 🌱 Biology topics\n• 💡 Any educational question!\n\nTo scan objects:\n1. Tap the 🔍 button to start scanning\n2. Point camera at any object\n3. Tap "Analyze with AI" 🤖\n\nOr just ask me anything!\nExample: "Explain photosynthesis" or "What is Newton's second law?"\n\nReady to learn? Let's explore! 🚀`,
         timestamp: new Date(),
       };
       setMessages([initialMsg]);
@@ -83,13 +83,13 @@ export default function ObjectChatbot({ detectedObject, objectInfo }: ObjectChat
 
       const data = await response.json();
 
-      let infoText = `**${objectName.charAt(0).toUpperCase() + objectName.slice(1)} - Educational Overview**\n\n`;
+      let infoText = `${objectName.charAt(0).toUpperCase() + objectName.slice(1)} - Educational Overview\n\n`;
 
       if (data.web_info) {
         infoText += `📖 ${data.web_info.description}\n\n`;
         
         if (data.web_info.key_facts && data.web_info.key_facts.length > 0) {
-          infoText += `**Key Facts:**\n`;
+          infoText += `Key Facts:\n`;
           data.web_info.key_facts.forEach((fact: string, idx: number) => {
             infoText += `${idx + 1}. ${fact}\n`;
           });
@@ -97,7 +97,7 @@ export default function ObjectChatbot({ detectedObject, objectInfo }: ObjectChat
         }
 
         if (data.web_info.scientific_principles && data.web_info.scientific_principles.length > 0) {
-          infoText += `**Scientific Principles:**\n`;
+          infoText += `Scientific Principles:\n`;
           data.web_info.scientific_principles.forEach((principle: string) => {
             infoText += `• ${principle}\n`;
           });
@@ -105,12 +105,12 @@ export default function ObjectChatbot({ detectedObject, objectInfo }: ObjectChat
         }
 
         if (data.web_info.fun_fact) {
-          infoText += `💡 **Fun Fact:** ${data.web_info.fun_fact}\n`;
+          infoText += `💡 Fun Fact: ${data.web_info.fun_fact}\n`;
         }
       }
 
       if (data.concepts && data.concepts.length > 0) {
-        infoText += `\n**Related Concepts:**\n`;
+        infoText += `\nRelated Concepts:\n`;
         data.concepts.forEach((concept: any) => {
           infoText += `• ${concept.name} (${concept.category})\n`;
         });
@@ -153,7 +153,7 @@ export default function ObjectChatbot({ detectedObject, objectInfo }: ObjectChat
     setIsLoading(true);
 
     try {
-      // Call Gemini API through backend
+      // Call AI API through backend
       const response = await fetch('http://localhost:8000/api/chat-query', {
         method: 'POST',
         headers: {
@@ -211,7 +211,7 @@ export default function ObjectChatbot({ detectedObject, objectInfo }: ObjectChat
       const welcomeMsg: Message = {
         id: Date.now().toString(),
         role: 'assistant',
-        content: `🔬 **Object Detected: ${detectedObject}**\n\nChat cleared. Ask me anything about ${detectedObject} or any other topic!`,
+        content: `🔬 Object Detected: ${detectedObject}\n\nChat cleared. Ask me anything about ${detectedObject} or any other topic!`,
         timestamp: new Date(),
       };
       setMessages([welcomeMsg]);
@@ -219,7 +219,7 @@ export default function ObjectChatbot({ detectedObject, objectInfo }: ObjectChat
       const initialMsg: Message = {
         id: Date.now().toString(),
         role: 'assistant',
-        content: `👋 **Welcome to KAIROS 2.0 AI Assistant!**\n\n🎓 **I'm your intelligent educational companion powered by Gemini AI.**\n\n**I can help you with:**\n• 📸 Analyzing scanned objects\n• 🔬 Explaining scientific concepts\n• 📐 Solving math problems\n• 🧪 Understanding chemistry\n• ⚡ Physics questions\n• 🌱 Biology topics\n• 💡 Any educational question!\n\n**To scan objects:**\n1. Tap the 🔍 button to start scanning\n2. Point camera at any object\n3. Tap "Analyze with AI" 🤖\n\n**Or just ask me anything!**\nExample: "Explain photosynthesis" or "What is Newton's second law?"\n\nReady to learn? Let's explore! 🚀`,
+        content: `👋 Welcome to KAIROS 2.0 AI Assistant!\n\n🎓 I'm your intelligent educational companion.\n\nI can help you with:\n• 📸 Analyzing scanned objects\n• 🔬 Explaining scientific concepts\n• 📐 Solving math problems\n• 🧪 Understanding chemistry\n• ⚡ Physics questions\n• 🌱 Biology topics\n• 💡 Any educational question!\n\nTo scan objects:\n1. Tap the 🔍 button to start scanning\n2. Point camera at any object\n3. Tap "Analyze with AI" 🤖\n\nOr just ask me anything!\nExample: "Explain photosynthesis" or "What is Newton's second law?"\n\nReady to learn? Let's explore! 🚀`,
         timestamp: new Date(),
       };
       setMessages([initialMsg]);
@@ -283,17 +283,17 @@ export default function ObjectChatbot({ detectedObject, objectInfo }: ObjectChat
                       : 'bg-white/10 backdrop-blur-xl text-white border border-white/10'
                   }`}
                 >
-                  <div className="text-sm leading-relaxed whitespace-pre-wrap">
-                    {message.content.split('\n').map((line, idx) => {
-                      if (line.startsWith('**') && line.endsWith('**')) {
-                        return <p key={idx} className="font-bold mb-1">{line.replace(/\*\*/g, '')}</p>;
-                      }
-                      if (line.trim().startsWith('•') || /^\d+\./.test(line.trim())) {
-                        return <p key={idx} className="ml-2 mb-0.5 text-sm opacity-90">{line}</p>;
-                      }
-                      return line ? <p key={idx} className="mb-1">{line}</p> : <br key={idx} />;
-                    })}
-                  </div>
+                <div className="text-sm leading-relaxed whitespace-pre-wrap">
+                  {message.content.split('\n').map((line, idx) => {
+                    // Remove ** symbols from the text
+                    const cleanLine = line.replace(/\*\*/g, '');
+                    
+                    if (cleanLine.trim().startsWith('•') || /^\d+\./.test(cleanLine.trim())) {
+                      return <p key={idx} className="ml-2 mb-0.5 text-sm opacity-90">{cleanLine}</p>;
+                    }
+                    return cleanLine ? <p key={idx} className="mb-1 font-medium">{cleanLine}</p> : <br key={idx} />;
+                  })}
+                </div>
                   <p className="text-xs opacity-50 mt-1 text-right">
                     {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
@@ -308,16 +308,80 @@ export default function ObjectChatbot({ detectedObject, objectInfo }: ObjectChat
               animate={{ opacity: 1 }}
               className="flex justify-start"
             >
-              <div className="bg-white/10 backdrop-blur-xl rounded-2xl px-4 py-3 border border-white/10">
-                <div className="flex gap-1">
-                  {[0, 1, 2].map((i) => (
+              <div className="bg-white/10 backdrop-blur-xl rounded-2xl px-6 py-4 border border-white/10">
+                <div className="flex flex-col gap-3">
+                  {/* Scanning animation */}
+                  <div className="flex items-center gap-2">
                     <motion.div
-                      key={i}
-                      animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
-                      transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15 }}
-                      className="w-2 h-2 bg-purple-400 rounded-full"
+                      animate={{ 
+                        rotate: 360,
+                        scale: [1, 1.2, 1]
+                      }}
+                      transition={{ 
+                        rotate: { duration: 2, repeat: Infinity, ease: "linear" },
+                        scale: { duration: 1, repeat: Infinity, ease: "easeInOut" }
+                      }}
+                      className="w-5 h-5 border-2 border-purple-500 border-t-transparent rounded-full"
                     />
-                  ))}
+                    <span className="text-xs text-purple-300">Analyzing...</span>
+                  </div>
+                  
+                  {/* Pulsing dots with wave effect */}
+                  <div className="flex gap-2 items-center">
+                    {[0, 1, 2, 3, 4].map((i) => (
+                      <motion.div
+                        key={i}
+                        animate={{ 
+                          scale: [1, 1.5, 1],
+                          opacity: [0.3, 1, 0.3],
+                          y: [0, -8, 0]
+                        }}
+                        transition={{ 
+                          duration: 1.2, 
+                          repeat: Infinity, 
+                          delay: i * 0.15,
+                          ease: "easeInOut"
+                        }}
+                        className="w-2 h-2 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full"
+                      />
+                    ))}
+                  </div>
+                  
+                  {/* Progress bar */}
+                  <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                    <motion.div
+                      animate={{ 
+                        x: [-100, 100],
+                        opacity: [0.5, 1, 0.5]
+                      }}
+                      transition={{ 
+                        duration: 1.5, 
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                      className="h-full w-1/2 bg-gradient-to-r from-transparent via-purple-500 to-transparent"
+                    />
+                  </div>
+                  
+                  {/* Neural network effect */}
+                  <div className="flex gap-1 justify-center">
+                    {[0, 1, 2].map((i) => (
+                      <motion.div
+                        key={i}
+                        animate={{ 
+                          scaleY: [1, 2, 1],
+                          opacity: [0.4, 1, 0.4]
+                        }}
+                        transition={{ 
+                          duration: 0.8, 
+                          repeat: Infinity, 
+                          delay: i * 0.2,
+                          ease: "easeInOut"
+                        }}
+                        className="w-1 h-3 bg-blue-400 rounded-full"
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -349,7 +413,7 @@ export default function ObjectChatbot({ detectedObject, objectInfo }: ObjectChat
               ➤
             </motion.button>
           </div>
-          <p className="text-xs text-gray-400 mt-2 text-center">Powered by Gemini AI</p>
+          <p className="text-xs text-gray-400 mt-2 text-center">AI-powered educational assistant</p>
         </div>
       </div>
     </motion.div>

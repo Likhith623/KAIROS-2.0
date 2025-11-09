@@ -398,7 +398,7 @@ TOPICS_DATABASE = {
 
 
 async def get_object_web_info(object_name: str) -> Dict[str, Any]:
-    """Get real-time web information about an object using Gemini"""
+    """Get real-time web information about an object using AI"""
     prompt = f"""Provide educational information about: {object_name}
 
 Return a JSON object with:
@@ -407,6 +407,8 @@ Return a JSON object with:
 - scientific_principles: Array of 2-3 scientific concepts related to it
 - fun_fact: One interesting trivia
 
+IMPORTANT: Do NOT use asterisks or confidence scores in your response. Use plain text only.
+
 Return ONLY valid JSON:
 {{"description":"...","key_facts":["..."],"scientific_principles":["..."],"fun_fact":"..."}}"""
 
@@ -414,8 +416,9 @@ Return ONLY valid JSON:
         response = gemini_model.generate_content(prompt)
         text = response.text.strip()
         
-        # Clean markdown
+        # Clean markdown and asterisks
         text = text.replace("```json", "").replace("```", "").strip()
+        text = text.replace("**", "")
         
         # Find JSON in response
         start_idx = text.find('{')
@@ -424,6 +427,17 @@ Return ONLY valid JSON:
             text = text[start_idx:end_idx+1]
         
         info = json.loads(text)
+        
+        # Clean any ** symbols from the parsed JSON values
+        if 'description' in info:
+            info['description'] = info['description'].replace('**', '')
+        if 'key_facts' in info:
+            info['key_facts'] = [fact.replace('**', '') for fact in info['key_facts']]
+        if 'scientific_principles' in info:
+            info['scientific_principles'] = [sp.replace('**', '') for sp in info['scientific_principles']]
+        if 'fun_fact' in info:
+            info['fun_fact'] = info['fun_fact'].replace('**', '')
+        
         return info
     except Exception as e:
         print(f"❌ Error getting web info for {object_name}: {e}")
@@ -574,11 +588,10 @@ async def analyze_image_with_gemini(file: UploadFile = File(...)):
         image.save(buffered, format="JPEG", quality=70)  # Reduced from 85 for speed
         img_base64 = base64.b64encode(buffered.getvalue()).decode()
         
-        # Prepare OPTIMIZED prompt for Gemini Vision (shorter = faster)
+        # Prepare OPTIMIZED prompt for AI Vision (shorter = faster)
         prompt = """Analyze this image quickly. Return ONLY JSON:
 {
   "object_detected": "object name",
-  "confidence": 0.95,
   "components": [
     {"name": "Part1", "position": {"x": 0.5, "y": 0.3}, "description": "Brief desc"},
     {"name": "Part2", "position": {"x": 0.3, "y": 0.7}, "description": "Brief desc"}
@@ -602,6 +615,8 @@ Rules:
 - Provide 5-8 component labels
 - Include 1-2 processes if relevant
 - Be concise and fast
+- DO NOT include confidence scores or percentages
+- DO NOT use asterisks for formatting
 """
         
         # Call Gemini Vision API
@@ -628,6 +643,18 @@ Rules:
         
         # Parse JSON
         analysis_result = json.loads(response_text)
+        
+        # Clean any ** symbols from the response
+        def clean_asterisks(obj):
+            if isinstance(obj, dict):
+                return {k: clean_asterisks(v) for k, v in obj.items()}
+            elif isinstance(obj, list):
+                return [clean_asterisks(item) for item in obj]
+            elif isinstance(obj, str):
+                return obj.replace('**', '')
+            return obj
+        
+        analysis_result = clean_asterisks(analysis_result)
         
         # Add metadata
         analysis_result["image_width"] = image.width
@@ -835,6 +862,8 @@ For {object_name}, include:
 - 2-3 process arrows with directions: up, down, left, right
 - 1-2 particle effects with movement: random, flow
 - Use color coding: green (#00ff00 - #88ff00) for biological, red (#ff0000 - #ff8800) for mechanical, blue (#0088ff) for fluids
+- DO NOT use asterisks for formatting
+- DO NOT include confidence scores
 
 Make labels specific to {object_name} anatomy and function."""
 
@@ -842,11 +871,12 @@ Make labels specific to {object_name} anatomy and function."""
         response = gemini_model.generate_content(prompt)
         text = response.text.strip()
         
-        print(f"🤖 Gemini AR overlay response for '{object_name}':")
+        print(f"🤖 AI AR overlay response for '{object_name}':")
         print(text[:300])
         
-        # Clean markdown
+        # Clean markdown and asterisks
         text = text.replace("```json", "").replace("```", "").strip()
+        text = text.replace("**", "")
         
         # Find JSON object
         start_idx = text.find('{')
@@ -932,7 +962,7 @@ async def handle_chat_query(request: dict):
             # Object-specific mode
             prompt = f"""You are KAIROS AI - an expert educational assistant helping students learn about objects and scientific concepts.
 
-Context: The user is looking at a **{context}** and has a question.
+Context: The user is looking at a {context} and has a question.
 
 Previous conversation:
 {history_text}
@@ -946,6 +976,8 @@ Provide a helpful, educational response that:
 4. Is engaging and encouraging for learning
 5. Uses examples and analogies when helpful
 6. Keep responses under 250 words for clarity
+7. DO NOT use asterisks for formatting - use plain text only
+8. DO NOT include confidence scores or percentages
 
 If the question is about {context}, provide detailed information. If it's about something else, answer it while maintaining educational value.
 
@@ -966,6 +998,8 @@ Provide a comprehensive educational response that:
 4. Breaks down complex concepts into understandable parts
 5. Encourages further learning and curiosity
 6. Keep responses under 250 words for clarity
+7. DO NOT use asterisks for formatting - use plain text only
+8. DO NOT include confidence scores or percentages
 
 Topics you excel at:
 - Mathematics (algebra, calculus, geometry, trigonometry)
@@ -978,6 +1012,15 @@ Response:"""
 
         response = gemini_model.generate_content(prompt)
         ai_response = response.text.strip()
+        
+        # Clean up the response - remove ** symbols and confidence mentions
+        ai_response = ai_response.replace('**', '')
+        
+        # Remove confidence-related phrases
+        import re
+        ai_response = re.sub(r'\(confidence:?\s*\d+(\.\d+)?%?\)', '', ai_response, flags=re.IGNORECASE)
+        ai_response = re.sub(r'confidence:?\s*\d+(\.\d+)?%?', '', ai_response, flags=re.IGNORECASE)
+        ai_response = re.sub(r'\d+(\.\d+)?%?\s*confidence', '', ai_response, flags=re.IGNORECASE)
         
         return {
             "response": ai_response,
