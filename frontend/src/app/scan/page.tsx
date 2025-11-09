@@ -607,13 +607,126 @@ export default function ScanPage() {
           </div>
         )}
 
-        {/* Scan Control Button */}
+        {/* Analyze Button (when object detected) - Positioned above scan button */}
+        <AnimatePresence>
+          {isScanning && currentObject && !isAnalyzing && !capturedImageUrl && (
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.9 }}
+              transition={{ type: "spring", damping: 15, stiffness: 300 }}
+              className="absolute bottom-28 left-1/2 -translate-x-1/2 z-50"
+            >
+              {/* Glow effect container */}
+              <div className="relative flex items-center justify-center">
+                {/* Outer glow ring */}
+                <motion.div
+                  animate={{
+                    scale: [1, 1.1, 1],
+                    opacity: [0.4, 0.7, 0.4],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                  className="absolute -inset-2 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 rounded-2xl blur-xl"
+                />
+
+                {/* Main button - Compact size */}
+                <motion.button
+                  whileHover={{ 
+                    scale: 1.05,
+                    boxShadow: "0 20px 40px -12px rgba(168, 85, 247, 0.5)",
+                  }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleAnalyzeWithAI}
+                  className="relative px-6 py-3 rounded-2xl font-bold text-base shadow-2xl overflow-hidden group backdrop-blur-xl border-2 border-white/20"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.95) 0%, rgba(236, 72, 153, 0.95) 50%, rgba(59, 130, 246, 0.95) 100%)',
+                  }}
+                >
+                  {/* Animated shimmer effect */}
+                  <motion.div
+                    animate={{
+                      x: ['-200%', '200%'],
+                    }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "linear",
+                      repeatDelay: 1,
+                    }}
+                    className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-12"
+                  />
+
+                  {/* Hover gradient overlay */}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    whileHover={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                    className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
+                    style={{ mixBlendMode: 'overlay' }}
+                  />
+
+                  {/* Button content - Centered with sparkles only */}
+                  <span className="relative z-10 flex items-center justify-center gap-2 text-white">
+                    {/* Sparkle icon left */}
+                    <motion.span 
+                      animate={{ 
+                        rotate: [0, 360],
+                        scale: [1, 1.15, 1],
+                      }}
+                      transition={{ 
+                        duration: 2, 
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
+                      className="text-xl drop-shadow-lg"
+                    >
+                      ✨
+                    </motion.span>
+                    
+                    {/* Text */}
+                    <span className="font-extrabold text-base tracking-wide drop-shadow-lg whitespace-nowrap">
+                      Analyze with AI
+                    </span>
+                    
+                    {/* Sparkle icon right */}
+                    <motion.span 
+                      animate={{ 
+                        rotate: [0, -360],
+                        scale: [1, 1.15, 1],
+                      }}
+                      transition={{ 
+                        duration: 2, 
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
+                      className="text-xl drop-shadow-lg"
+                    >
+                      ✨
+                    </motion.span>
+                  </span>
+
+                  {/* Bottom shine effect */}
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+                  
+                  {/* Top highlight */}
+                  <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Scan Control Button - Smaller size */}
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-50">
           <motion.button
-            whileHover={{ scale: 1.1 }}
+            whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.95 }}
             onClick={toggleScanning}
-            className={`relative w-20 h-20 rounded-full font-bold shadow-2xl transition-all overflow-hidden ${
+            className={`relative w-16 h-16 rounded-full font-bold shadow-2xl transition-all overflow-hidden ${
               isScanning 
                 ? 'bg-gradient-to-r from-red-500 to-pink-500' 
                 : 'bg-gradient-to-r from-blue-600 to-purple-600'
@@ -624,7 +737,7 @@ export default function ScanPage() {
               transition={{ duration: 1.5, repeat: Infinity }}
               className="absolute inset-0 bg-white/20 rounded-full"
             ></motion.div>
-            <span className="relative text-white text-4xl">
+            <span className="relative text-white text-3xl">
               {isScanning ? '⏹' : '🔍'}
             </span>
           </motion.button>
@@ -632,46 +745,11 @@ export default function ScanPage() {
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-center text-white text-sm font-medium mt-3"
+            className="text-center text-white text-xs font-medium mt-2"
           >
-            {isScanning ? 'Stop Scanning' : 'Start Scanning'}
+            {isScanning ? 'Stop' : 'Scan'}
           </motion.p>
         </div>
-
-        {/* Analyze Button (when object detected) */}
-        <AnimatePresence>
-          {isScanning && currentObject && !isAnalyzing && !capturedImageUrl && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              className="absolute bottom-32 left-1/2 transform -translate-x-1/2 z-50"
-            >
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={handleAnalyzeWithAI}
-                className="px-10 py-5 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white rounded-2xl font-bold text-xl shadow-2xl relative overflow-hidden group"
-              >
-                <motion.div
-                  animate={{
-                    backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                  }}
-                  className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 opacity-0 group-hover:opacity-100"
-                />
-                <span className="relative z-10 flex items-center gap-3">
-                  <span className="text-3xl">🤖</span>
-                  Analyze with AI
-                  <span className="text-3xl">✨</span>
-                </span>
-              </motion.button>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {/* Instructions (when not scanning) */}
         {!isScanning && !capturedImageUrl && (
