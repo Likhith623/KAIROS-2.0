@@ -1,4 +1,4 @@
-````markdown
+
 <div align="center">
 
 # 🚀 KAIROS 2.0
@@ -2560,4 +2560,3 @@ By 2030, KAIROS will have:
 
 </div>
 
-Similar code found with 3 license types
