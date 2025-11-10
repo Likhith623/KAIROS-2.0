@@ -1,28 +1,27 @@
+## How to Run
 
-1. In other terminal:
-Run the frontend for RAG Platform.
-cd RAG-AGENT
-cd front_end
+### 1. Run the frontend for RAG Platform (in a terminal)
+```bash
+cd RAG-AGENT/front_end
 npm install
 npm run dev
+```
 
-
-2. In other terminal:
-Run the backend for RAG Platform.
+### 2. Run the backend for RAG Platform (in another terminal)
+```bash
 cd RAG-AGENT
 python main.py
+```
 
-
-
-3. In one terminal: 
-Run the frontend for the website.
+### 3. Run the frontend for the website (in a terminal)
+```bash
 cd frontend
 npm install
 PORT=3001 npm run dev
+```
 
-
-4. In other terminal:
-Run the backend for the website.
+### 4. Run the backend for the website (in another terminal)
+```bash
 cd backend
 uvicorn main:app --reload
-
+```
