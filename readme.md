@@ -57,17 +57,11 @@
 
 
 <div align="center">
-
-| Resource | Link | Description |
-|----------|------|-------------|
-| 🎥 **Demo Video** | [Google Drive](https://drive.google.com/file/d/1yH1mlzNrJE-4xgptaF4cwIuKicxfEJ2f/view?usp=sharing) | Full system demonstration |
-
+  <a href="https://drive.google.com/file/d/1yH1mlzNrJE-4xgptaF4cwIuKicxfEJ2f/view?usp=sharing" target="_blank" style="text-decoration:none; font-size:1.4rem; font-weight:600;">
+    🎥 Demo Video
+  </a>
 </div>
 
----
-
-<div align="center">
----
 
 ## 📊 **The Problem: Education's Perfect Storm**
 
